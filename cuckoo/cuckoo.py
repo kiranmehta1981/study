@@ -1,30 +1,42 @@
 import hashlib
-from sys import exit
+import sys
 #Number of elements in hash table
-N=2
+
+if len(sys.argv) != 2 :
+    print "Required format: <python> <program> <size of hash table>"
+    sys.exit(0)
+
+if int(sys.argv[1]) <= 0:
+    print "Required format: <python> <program> <size of hash table>"
+    sys.exit(0)
+
+N=int(sys.argv[1])
+
+F=[hashlib.md5, hashlib.sha1, hashlib.sha256, hashlib.sha512]
 #Number of hash tables
-T = 2
+T = len(F)
 
-DEFAULT=0
+#Default value in hash table
+DEFAULT=-1
 
-#Number of inserth attempts before giving up
-threshold = 10
+#Number of insert attempts before giving up
+R = 10
 
 #storage for hashed data
 H = [[DEFAULT for x in range(N)] for y in range(T)]
 
 def hash(h, n):
-    if (h == 0):
-        m = hashlib.md5(str(n))
-        return int(m.hexdigest(), 16) % N
-    else:
-        m = hashlib.sha1(str(n))
-        return int(m.hexdigest(), 16) % N
+    m = F[h](str(n))
+    return int(m.hexdigest(), 16) % N
 
 def printmap():
+    count = 0
     for i in range(T):
         for j in range(N):
-            print " Table %d value[%d]" % (i, H[i][j])
+            if H[i][j] != DEFAULT:
+                print " Table %d value[%d]" % (i, H[i][j])
+                count = count  + 1
+    print "Total elements  = %d" % (count)
 
 def populatemap(filename):
     with open(filename) as f:
@@ -38,7 +50,7 @@ def populatemap(filename):
 def insert_element_in_table(t, n):
     print "insert_element_in_table: t = %d n = %d  hash = %d" % (t,n, hash(t, n))
     if (H[t][hash(t, n)] == n):
-        return int(n)   
+        return n   
     else:
         oldval = H[t][hash(t,n)]
         H[t][hash(t,n)] = n
@@ -46,32 +58,25 @@ def insert_element_in_table(t, n):
 
 def insert_element(n):
     t = 0
-    for i in range(threshold):
-        print "Attempting insertion of %d " % (n)
-        r = insert_element_in_table(t, n)
-        if (r == n or r == DEFAULT):
-	    print "* Element inserted "
-            return True
-        else:
-            print "Displaced element %d from 1st table " % (r)
-            n = r
-            r = insert_element_in_table(t+1 % T, n)
-            if (r == n or r == DEFAULT):
-	        print "** Element inserted "
+    for r in range(R):
+        for t in range(T):
+            print "Attempting insertion of %d " % (n)
+            d = insert_element_in_table(t, n)
+            if (d == n or d == DEFAULT):
+	        print "* Element inserted "
                 return True
-            print "Displaced element %d from 2nd table" % (r)
-        n = r
+            else:
+                print "Displaced element %d from 1st table " % (d)
+                n = d
 
-    print "=======Could not insert value in hash table. Threshold reached======"
+    print "=Could not insert value in hash table. Threshold reached="
     return False
 
 def query_element(n):
-    if (H[0][hash(0, n)] == n):
-        print "Element %s present in hash table" % (n)
-        return True
-    elif (H[1][hash(1, n)] == n):
-        print "Element %s present in hash table" % (n)
-        return True
+    for t in range(T):
+        if (H[t][hash(t, n)] == n):
+            print "Element %s present in hash table" % (n)
+            return True
     return False 
 
 def do_printmap():

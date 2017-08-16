@@ -20,7 +20,7 @@ T = len(F)
 DEFAULT=-1
 
 #Number of insert attempts before giving up
-R = 10
+R = 2
 
 #storage for hashed data
 H = [[DEFAULT for x in range(N)] for y in range(T)]

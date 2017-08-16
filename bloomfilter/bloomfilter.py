@@ -1,8 +1,16 @@
 from bitstring import BitArray
 import hashlib
-from sys import exit
+import sys
 
-N=101
+if len(sys.argv) != 2 :
+    print "Required format: <python> <program> <size of bitmap>"
+    sys.exit(0)
+if int(sys.argv[1]) <= 0:
+    print "Required format: <python> <program> <size of bitmap>"
+    sys.exit(0)
+
+N=int(sys.argv[1])
+
 bitmap = BitArray(N)
 
 def setbit(position):
@@ -12,9 +20,12 @@ def getbit(position):
     return bool(bitmap[position:position+1])
 
 def printmap():
+    count = 0
     for position, bit in enumerate(bitmap):
         if (bool(bit) == True):
     	    print '%d  %5r (%d)' % (position, bool(bit), bit)
+            count = count + 1
+    print "Total bits set  = %d" % (count)
 
 def populatemap(filename):
     with open(filename) as f:

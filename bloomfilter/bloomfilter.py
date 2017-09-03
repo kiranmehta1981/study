@@ -1,18 +1,23 @@
 from bitstring import BitArray
+from math import sqrt
+from itertools import count, islice
 import hashlib
 import sys
+
+def isPrime(n):
+    return n > 1 and all(n%i for i in islice(count(2), int(sqrt(n)-1)))
 
 H=[hashlib.md5, hashlib.sha1, hashlib.sha256, hashlib.sha512]
 T=len(H)
 
-if len(sys.argv) != 4 :
-    print "Required format: <python> <program> <size of bitmap> <number of hash functions (<=4)> <config file>"
+if len(sys.argv) != 4 or bool(isPrime(int(sys.argv[1])) == False):
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
     sys.exit(0)
 if int(sys.argv[1]) <= 0:
-    print "Required format: <python> <program> <size of bitmap> <number of hash functions (<=4)> <config file>"
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
     sys.exit(0)
 if int(sys.argv[2]) <= 0 or int(sys.argv[2])  > T:
-    print "Required format: <python> <program> <size of bitmap> <number of hash functions (<=4)> <config file>"
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
     sys.exit(0)
 
 N=int(sys.argv[1])
@@ -21,6 +26,7 @@ config_file = sys.argv[3]
 bitmap = BitArray(N)
 elem_count = 0
 fp_count = 0;
+
 
 def setbit(position):
     bitmap.set(True, position)
@@ -42,11 +48,9 @@ def populatemap(filename, s, e):
         for i,line in enumerate(f, 1):
             if ( i < s):
                 continue;
-            line = line.split()
             if line:
-                for n in line:
-		    print "Setting bits for number %s" % (n)
-		    insert_element(n)
+	        print "Setting bits for %s" % (line)
+	        insert_element(line)
             s = s + 1
             if (s  > e):
                 break;

@@ -7,25 +7,25 @@ import sys
 def isPrime(n):
     return n > 1 and all(n%i for i in islice(count(2), int(sqrt(n)-1)))
 
-H=[hashlib.md5, hashlib.sha1, hashlib.sha256, hashlib.sha512]
+H=[hashlib.md5, hashlib.sha1, hashlib.sha224, hashlib.sha256, hashlib.sha384, hashlib.sha512]
 T=len(H)
 
 if len(sys.argv) != 4 or bool(isPrime(int(sys.argv[1])) == False):
-    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=6)> <config file>"
     sys.exit(0)
 if int(sys.argv[1]) <= 0:
-    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=6)> <config file>"
     sys.exit(0)
 if int(sys.argv[2]) <= 0 or int(sys.argv[2])  > T:
-    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=4)> <config file>"
+    print "Required format: <python> <program> <prime size of bitmap> <number of hash functions (<=6)> <config file>"
     sys.exit(0)
 
-N=int(sys.argv[1])
-K=int(sys.argv[2])
+M = int(sys.argv[1])
+K = int(sys.argv[2])
 config_file = sys.argv[3]
-bitmap = BitArray(N)
-elem_count = 0
-fp_count = 0;
+bitmap = BitArray(M)
+N = 0
+FP = 0;
 
 
 def setbit(position):
@@ -56,24 +56,24 @@ def populatemap(filename, s, e):
                 break;
 
 def insert_element(n):
-    global elem_count, fp_count
+    global N, FP
     is_fp = True
     for h in range(K):
         m = H[h](n)
-        b = int(m.hexdigest(), 16) % N
+        b = int(m.hexdigest(), 16) % M
         is_fp = is_fp and getbit(b)
         setbit(b)
 
     if (is_fp):
-        fp_count = fp_count + 1
+        FP = FP + 1
 
-    elem_count = elem_count + 1
+    N = N + 1
 
 def query_element(n):
     r = True
     for h in range(K):
         m = H[h](n)
-        b = int(m.hexdigest(), 16) % N
+        b = int(m.hexdigest(), 16) % M
         if (getbit(b) == False):
             r = False
             break
@@ -96,13 +96,15 @@ def do_query_element():
         print "Element %s not found" % (n)
 
 def do_populate_using_config():
+    outfile = open("output_" + str(M) + "_" + str(K), "w")
     with open(config_file) as f:
         for line in f:
             line = line.split(",")
             if line:
                 if (int(line[1]) < int(line[2]) and  int(line[1] >= 1 )):
                     populatemap(line[0], int(line[1]), int(line[2]))
-                    print "element count = %d fp = %d " % (elem_count, fp_count)
+                    outfile.write("M=%d K=%d N=%d FP=%d\n" % (M, K, N, FP))
+    outfile.close();
 
 def do_exit():
     print "Exiting ...."

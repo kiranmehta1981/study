@@ -1,1 +1,6 @@
-/root/work/study/bloomfilter/kaggle_movie_names, 1, 5000
+/root/work/study/bloomfilter/kaggle_movie_names, 1, 256
+/root/work/study/bloomfilter/kaggle_movie_names, 257, 512
+/root/work/study/bloomfilter/kaggle_movie_names, 513, 1024
+/root/work/study/bloomfilter/kaggle_movie_names, 1025, 2048
+/root/work/study/bloomfilter/kaggle_movie_names, 2049, 4096
+/root/work/study/bloomfilter/kaggle_movie_names, 4097, 5000
